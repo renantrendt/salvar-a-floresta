@@ -30,11 +30,7 @@ function iniciarJogo() {
     atualizarCronometro();
     setInterval(moverFazendeiro, 1000); // Move o fazendeiro a cada 2 segundos
 }
-function atualizarPreservacaoFloresta() {
-     // Recalcula a porcentagem de floresta preservada com base nas árvores atuais versus iniciais.
- const porcentagemPreservada = (currentTrees / totalTreesStart) * 100;        document.getElementById('forest-status').textContent = `Floresta Preservada: ${porcentagemPreservada.toFixed(0)}%`;
-    }
-    
+
 function preencherComArvores(quantidade) {
     const areaSegura = {
         top: 50, // Altura reservada para o cronômetro e status, por exemplo
@@ -129,6 +125,12 @@ function preencherComArvores(quantidade) {
         // Se não houver mais árvores, pode optar por terminar o jogo ou reiniciar o processo
         console.log("Todas as árvores foram desmatadas.");
     }
+function atualizarPreservacaoFloresta() {
+    // Calcula a porcentagem baseada na quantidade atual de árvores versus a quantidade inicial.
+    let porcentagemPreservada = (document.querySelectorAll('.arvore').length / totalTreesStart) * 100;
+    document.getElementById('forest-status').textContent = `Floresta Preservada: ${porcentagemPreservada.toFixed(0)}%`;
+}
+    
 }
 
 
