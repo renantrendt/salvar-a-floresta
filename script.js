@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
         iniciarJogo();
     });
 
+    const totalTreesStart = document.querySelectorAll('.arvore').length; // Atualiza com base nas árvores iniciais.
+    let currentTrees = totalTreesStart;
+    
     const jogador = document.createElement('div');
     jogador.className = 'sprite jogador';
     jogador.style.left = '50%'; // Centraliza o jogador no início
@@ -23,11 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
     gameArea.appendChild(fazendeiro);
 
 function iniciarJogo() {
-    preencherComArvores(50); // Preenche o jogo com 50 árvores inicialmente
+    preencherComArvores(500); // Preenche o jogo com 50 árvores inicialmente
     atualizarCronometro();
-    setInterval(moverFazendeiro, 2000); // Move o fazendeiro a cada 2 segundos
+    setInterval(moverFazendeiro, 1000); // Move o fazendeiro a cada 2 segundos
 }
-
+function atualizarPreservacaoFloresta() {
+     // Recalcula a porcentagem de floresta preservada com base nas árvores atuais versus iniciais.
+ const porcentagemPreservada = (currentTrees / totalTreesStart) * 100;        document.getElementById('forest-status').textContent = `Floresta Preservada: ${porcentagemPreservada.toFixed(0)}%`;
+    }
+    
 function preencherComArvores(quantidade) {
     const areaSegura = {
         top: 50, // Altura reservada para o cronômetro e status, por exemplo
@@ -94,23 +101,30 @@ function preencherComArvores(quantidade) {
         arvore.style.left = `${x}px`;
         arvore.style.top = `${y}px`;
         gameArea.appendChild(arvore);
+        currentTrees++;
+        atualizarPreservacaoFloresta();
     }
 
     function dentroDaAreaDeJogo(x, y) {
         return x >= 0 && x <= gameArea.offsetWidth && y >= 0 && y <= gameArea.offsetHeight;
     }
     
-function moverFazendeiro() {
-    const arvores = document.querySelectorAll('.arvore');
-    if (arvores.length > 0) {
-        const proximaArvore = arvores[0]; // Seleciona a próxima árvore na lista
-        fazendeiro.style.left = proximaArvore.style.left;
-        fazendeiro.style.top = proximaArvore.style.top;
+    function moverFazendeiro() {
+        // Atualiza a lógica para buscar árvores dinamicamente a cada ciclo.
+        setInterval(() => {
+            const arvores = document.querySelectorAll('.arvore');
+            if (arvores.length > 0) {
+                const proximaArvore = arvores[0]; // Pega sempre a primeira árvore disponível.
+                fazendeiro.style.left = proximaArvore.style.left;
+                fazendeiro.style.top = proximaArvore.style.top;
 
-        // Remove a árvore após um curto delay para simular o tempo de desmatamento
-        setTimeout(() => {
-            proximaArvore.parentNode.removeChild(proximaArvore);
-        }, 1000); // Ajuste este tempo conforme necessário
+                setTimeout(() => {
+                    proximaArvore.remove(); // Desmata a árvore.
+                    currentTrees--; // Atualiza a contagem de árvores.
+                    atualizarPreservacaoFloresta(); // Recalcula a porcentagem de preservação.
+                }, 1000); // Ajuste conforme necessário.
+            }
+        }, 2000);
     } else {
         // Se não houver mais árvores, pode optar por terminar o jogo ou reiniciar o processo
         console.log("Todas as árvores foram desmatadas.");
