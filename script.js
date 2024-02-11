@@ -28,15 +28,24 @@ function iniciarJogo() {
     setInterval(moverFazendeiro, 2000); // Move o fazendeiro a cada 2 segundos
 }
 
-    function preencherComArvores(quantidade) {
-        for (let i = 0; i < quantidade; i++) {
-            const arvore = document.createElement('div');
-            arvore.className = 'sprite arvore';
-            arvore.style.left = `${Math.random() * (gameArea.offsetWidth - 20)}px`;
-            arvore.style.top = `${Math.random() * (gameArea.offsetHeight - 20)}px`;
-            gameArea.appendChild(arvore);
-        }
+function preencherComArvores(quantidade) {
+    const areaSegura = {
+        top: 50, // Altura reservada para o cronômetro e status, por exemplo
+        left: 10, // Margem esquerda segura
+        right: 10, // Margem direita segura
+        bottom: 10 // Margem inferior segura
+    };
+
+    for (let i = 0; i < quantidade; i++) {
+        const arvore = document.createElement('div');
+        arvore.className = 'sprite arvore';
+        // Calcula posições considerando as áreas seguras
+        arvore.style.left = `${Math.random() * (gameArea.offsetWidth - areaSegura.left - areaSegura.right - 40) + areaSegura.left}px`; // 40 é a largura da árvore
+        arvore.style.top = `${Math.random() * (gameArea.offsetHeight - areaSegura.top - areaSegura.bottom - 40) + areaSegura.top}px`; // 40 é a altura da árvore
+        gameArea.appendChild(arvore);
     }
+}
+
 
     function atualizarCronometro() {
         const interval = setInterval(() => {
