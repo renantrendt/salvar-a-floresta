@@ -1,42 +1,53 @@
-let forestPreserved = 100; // Inicia com 100% de floresta preservada
-const totalTime = 180; // Total de tempo em segundos (3 minutos)
-let currentTime = totalTime;
-const timerElement = document.getElementById('timer');
-const forestStatusElement = document.getElementById('forest-status');
-const restartButton = document.getElementById('restart');
-const nextLevelButton = document.getElementById('next-level');
+document.addEventListener('DOMContentLoaded', () => {
+    const jogador = document.getElementById('jogador');
+    const fazendeiro = document.getElementById('fazendeiro');
+    let florestaPreservada = 100;
+    let segundosRestantes = 180; // 3 minutos
 
-function updateTimer() {
-    const minutes = Math.floor(currentTime / 60);
-    const seconds = currentTime % 60;
-    timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    if (currentTime <= 0) {
-        clearInterval(timerInterval);
-        checkGameOver();
-    } else {
-        currentTime--;
-        if (currentTime <= totalTime / 2) { // Reduz a floresta preservada após metade do tempo
-            forestPreserved = 50 + (50 * currentTime / totalTime); // Ajuste conforme necessário
-            forestStatusElement.textContent = `Floresta Preservada: ${forestPreserved.toFixed(0)}%`;
+    function atualizarTimer() {
+        const timer = document.getElementById('timer');
+        let minutos = Math.floor(segundosRestantes / 60);
+        let segundos = segundosRestantes % 60;
+        timer.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+        if (segundosRestantes > 0) {
+            setTimeout(atualizarTimer, 1000);
+            segundosRestantes--;
+            if (segundosRestantes === 120) { // Metade do tempo
+                florestaPreservada = 50;
+            }
+            document.getElementById('forest-status').textContent = `Floresta Preservada: ${florestaPreservada}%`;
         }
     }
-}
+    atualizarTimer();
 
-function checkGameOver() {
-    if (forestPreserved >= 50) {
-        alert("Você salvou o mundo!");
-        nextLevelButton.style.display = "block"; // Mostrar botão para próxima fase
-    } else {
-        alert("O fazendeiro desmatou mais de 50% da floresta!");
-        restartButton.style.display = "block"; // Mostrar botão de reiniciar
+    document.addEventListener('keydown', (e) => {
+        switch(e.key) {
+            case 'ArrowUp': moverJogador(0, -5); break;
+            case 'ArrowDown': moverJogador(0, 5); break;
+            case 'ArrowLeft': moverJogador(-5, 0); break;
+            case 'ArrowRight': moverJogador(5, 0); break;
+            case ' ': plantarArvore(); break; // Replantar árvores com espaço
+        }
+    });
+
+    function moverJogador(dx, dy) {
+        let posX = jogador.offsetLeft + dx;
+        let posY = jogador.offsetTop + dy;
+        jogador.style.left = `${posX}px`;
+        jogador.style.top = `${posY}px`;
+        // Adicione colisão com fazendeiro aqui se necessário
     }
-}
 
-restartButton.onclick = () => window.location.reload();
-nextLevelButton.onclick = () => {
-    // Lógica para avançar para a próxima fase
-};
+    function moverFazendeiro() {
+        // Implemente o movimento do fazendeiro aqui
+        // Exemplo: fazendeiro.style.left = `${novoX}px`; fazendeiro.style.top = `${novoY}px`;
+    }
 
-let timerInterval = setInterval(updateTimer, 1000);
+    function plantarArvore() {
+        // Implemente a lógica para plantar uma árvore
+        // Exemplo: crie um novo div com a classe 'arvore' e adicione ao jogo
+    }
 
-// Adicione aqui a lógica para movimentação do jogador, coleta e plantio de sementes, e interação com o fazendeiro
+    // Inicie o movimento do fazendeiro
+    setInterval(moverFazendeiro, 2000); // Mova o fazendeiro a cada 2 segundos
+});
