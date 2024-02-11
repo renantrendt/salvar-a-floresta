@@ -1,33 +1,52 @@
-body, html {
-    height: 100%;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #ddf;
-}
-
 #game {
     position: relative;
-    width: 100%;
-    height: 100%;
+    background-color: lightgreen;
+}
+
+#timer, #forest-status {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    padding: 5px;
+}
+
+#timer {
+    top: 10px;
+}
+
+#forest-status {
+    top: 40px;
 }
 
 .sprite {
     position: absolute;
+    border-radius: 50%;
+}
+
+.jogador, .fazendeiro, .arvore, .area-coleta {
     width: 20px;
     height: 20px;
-    border-radius: 50%;
+}
+
+.arvore {
+    background-color: green;
+    width: 10px; /* Árvores menores */
+    height: 10px;
+}
+
+.area-coleta {
+    background-color: white;
+    width: 30px; /* Tamanhos maiores para áreas de coleta */
+    height: 30px;
 }
 
 .jogador {
     background-color: blue;
+    width: 20px; /* Tamanho do jogador */
+    height: 20px;
 }
 
 .fazendeiro {
     background-color: red;
-}
-
-/* Adicione estilos para suas sprites aqui. Por exemplo: */
-.sprite.arvore {
-    background-image: url('path/to/your/tree_sprite.png');
-    background-size: cover;
 }
