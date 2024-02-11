@@ -2,17 +2,32 @@ body, html {
     height: 100%;
     margin: 0;
     font-family: Arial, sans-serif;
+    background-color: #ddf;
 }
 
 #game {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    position: relative;
+    width: 100%;
     height: 100%;
 }
 
-#timer, #forest-status {
-    font-size: 24px;
-    margin: 10px;
+.sprite {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.jogador {
+    background-color: blue;
+}
+
+.fazendeiro {
+    background-color: red;
+}
+
+/* Adicione estilos para suas sprites aqui. Por exemplo: */
+.sprite.arvore {
+    background-image: url('path/to/your/tree_sprite.png');
+    background-size: cover;
 }
