@@ -1,22 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const gameArea = document.getElementById('game');
     const startButton = document.getElementById('start-game');
+    const gameArea = document.getElementById('game');
     const timerElement = document.getElementById('timer');
     let segundosRestantes = 180; // 3 minutos
-
-    // Inicialização e estilização do jogador
-    const jogador = document.createElement('div');
-    jogador.className = 'sprite jogador';
-    jogador.style.left = '290px'; // Posição inicial no centro
-    jogador.style.top = '290px';
-    gameArea.appendChild(jogador);
-
-    // Inicialização e estilização do fazendeiro
-    const fazendeiro = document.createElement('div');
-    fazendeiro.className = 'sprite fazendeiro';
-    fazendeiro.style.left = '10px'; // Posição inicial
-    fazendeiro.style.top = '10px';
-    gameArea.appendChild(fazendeiro);
 
     startButton.addEventListener('click', () => {
         document.getElementById('pre-game').style.display = 'none';
@@ -24,18 +10,30 @@ document.addEventListener('DOMContentLoaded', () => {
         iniciarJogo();
     });
 
-    function iniciarJogo() {
-        preencherComArvores();
-        atualizarCronometro();
-        moverFazendeiro(); // Inicia o movimento do fazendeiro
-    }
+    const jogador = document.createElement('div');
+    jogador.className = 'sprite jogador';
+    jogador.style.left = '50%'; // Centraliza o jogador no início
+    jogador.style.bottom = '10px'; // Posição inicial no fundo do jogo
+    gameArea.appendChild(jogador);
 
-    function preencherComArvores() {
-        for (let i = 0; i < 50; i++) {
+    const fazendeiro = document.createElement('div');
+    fazendeiro.className = 'sprite fazendeiro';
+    fazendeiro.style.left = '0px'; // Posição inicial do fazendeiro
+    fazendeiro.style.top = '0px';
+    gameArea.appendChild(fazendeiro);
+
+function iniciarJogo() {
+    preencherComArvores(50); // Preenche o jogo com 50 árvores inicialmente
+    atualizarCronometro();
+    setInterval(moverFazendeiro, 2000); // Move o fazendeiro a cada 2 segundos
+}
+
+    function preencherComArvores(quantidade) {
+        for (let i = 0; i < quantidade; i++) {
             const arvore = document.createElement('div');
             arvore.className = 'sprite arvore';
-            arvore.style.left = `${Math.random() * (gameArea.offsetWidth - 40)}px`;
-            arvore.style.top = `${Math.random() * (gameArea.offsetHeight - 40)}px`;
+            arvore.style.left = `${Math.random() * (gameArea.offsetWidth - 20)}px`;
+            arvore.style.top = `${Math.random() * (gameArea.offsetHeight - 20)}px`;
             gameArea.appendChild(arvore);
         }
     }
@@ -56,46 +54,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.addEventListener('keydown', (e) => {
-        const speed = 20; // Ajuste conforme necessário
-        switch (e.key) {
-            case 'ArrowUp': jogador.style.top = `${Math.max(parseInt(jogador.style.top) - speed, 0)}px`; break;
-            case 'ArrowDown': jogador.style.top = `${Math.min(parseInt(jogador.style.top) + speed, gameArea.offsetHeight - 20)}px`; break;
-            case 'ArrowLeft': jogador.style.left = `${Math.max(parseInt(jogador.style.left) - speed, 0)}px`; break;
-            case 'ArrowRight': jogador.style.left = `${Math.min(parseInt(jogador.style.left) + speed, gameArea.offsetWidth - 20)}px`; break;
-            case ' ': // Replantar árvores
-                const novaArvore = document.createElement('div');
-                novaArvore.className = 'sprite arvore';
-                novaArvore.style.left = jogador.style.left;
-                novaArvore.style.top = jogador.style.top;
-                gameArea.appendChild(novaArvore);
-                break;
-        }
+        moverJogador(e);
     });
 
-    // Função para mover o fazendeiro e desmatar árvores
-    function moverFazendeiro() {
-        const arvores = document.querySelectorAll('.arvore');
-        let index = 0; // Começa com a primeira árvore
-        const intervaloDesmatamento = setInterval(() => {
-            if (arvores.length > 0 && index < arvores.length) {
-                const arvoreAtual = arvores[index];
-                fazendeiro.style
-                                fazendeiro.style.left = arvoreAtual.style.left;
-                fazendeiro.style.top = arvoreAtual.style.top;
-                setTimeout(() => {
-                    if (arvoreAtual && arvoreAtual.parentNode) {
-                        arvoreAtual.parentNode.removeChild(arvoreAtual);
-                    }
-                    // Atualize aqui a lógica para reduzir a porcentagem da floresta preservada, se aplicável
-                }, 500); // Espera meio segundo antes de remover a árvore para simular o desmatamento
-                index++;
-                if(index >= arvores.length) { // Se todas as árvores foram removidas, pare o desmatamento
-                    clearInterval(intervaloDesmatamento);
-                }
-            } else {
-                clearInterval(intervaloDesmatamento); // Se não houver mais árvores, pare o desmatamento
-            }
-        }, 2000); // Move para a próxima árvore a cada 2 segundos
+    function moverJogador(e) {
+        const speed = 10; // Velocidade do movimento do jogador
+        let posX = parseInt(jogador.style.left);
+        let posY = parseInt(jogador.style.top);
+
+        switch (e.key) {
+            case 'ArrowUp': posY -= speed; break;
+            case 'ArrowDown': posY += speed; break;
+            case 'ArrowLeft': posX -= speed; break;
+            case 'ArrowRight': posX += speed; break;
+        }
+
+        // Atualiza a posição do jogador com os novos valores
+        jogador.style.left = `${Math.max(0, Math.min(gameArea.offsetWidth - jogador.offsetWidth, posX))}px`;
+        jogador.style.top = `${Math.max(0, Math.min(gameArea.offsetHeight - jogador.offsetHeight, posY))}px`;
+
+        // Replantio de árvores ao pressionar espaço
+        if (e.key === ' ' && dentroDaAreaDeJogo(posX, posY)) {
+            plantarArvore(posX, posY);
+        }
     }
-});
+
+    function plantarArvore(x, y) {
+        const arvore = document.createElement('div');
+        arvore.className = 'sprite arvore';
+        arvore.style.left = `${x}px`;
+        arvore.style.top = `${y}px`;
+        gameArea.appendChild(arvore);
+    }
+
+    function dentroDaAreaDeJogo(x, y) {
+        return x >= 0 && x <= gameArea.offsetWidth && y >= 0 && y <= gameArea.offsetHeight;
+    }
+    
+function moverFazendeiro() {
+    const arvores = document.querySelectorAll('.arvore');
+    if (arvores.length > 0) {
+        const proximaArvore = arvores[0]; // Seleciona a próxima árvore na lista
+        fazendeiro.style.left = proximaArvore.style.left;
+        fazendeiro.style.top = proximaArvore.style.top;
+
+        // Remove a árvore após um curto delay para simular o tempo de desmatamento
+        setTimeout(() => {
+            proximaArvore.parentNode.removeChild(proximaArvore);
+        }, 1000); // Ajuste este tempo conforme necessário
+    } else {
+        // Se não houver mais árvores, pode optar por terminar o jogo ou reiniciar o processo
+        console.log("Todas as árvores foram desmatadas.");
+    }
+}
+
 
