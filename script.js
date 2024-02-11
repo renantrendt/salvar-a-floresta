@@ -1,29 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
     const gameArea = document.getElementById('game');
-    let sementes = 0;
     const jogador = document.createElement('div');
     const fazendeiro = document.createElement('div');
     const arvores = [];
+    let sementesInfinitas = false;
+    let forestPreserved = 100;
+    const totalTreesStart = 50; // Número total de árvores no início
+    let currentTrees = totalTreesStart;
 
+    // Inicialização e estilização do jogador e fazendeiro
     jogador.className = 'sprite jogador';
     fazendeiro.className = 'sprite fazendeiro';
     gameArea.appendChild(jogador);
     gameArea.appendChild(fazendeiro);
-
-    // Posiciona o jogador e o fazendeiro inicialmente
-    jogador.style.left = '290px'; // Centro da área de jogo
+    jogador.style.left = '290px';
     jogador.style.top = '290px';
-    fazendeiro.style.left = '10px'; // Começa no canto
+    fazendeiro.style.left = '10px';
     fazendeiro.style.top = '10px';
 
     // Inicializa o jogo com árvores
-    for (let i = 0; i < 50; i++) {
-        const tree = document.createElement('div');
-        tree.className = 'sprite arvore';
-        tree.style.left = `${Math.random() * 580}px`;
-        tree.style.top = `${Math.random() * 580}px`;
-        gameArea.appendChild(tree);
-        arvores.push(tree);
+    for (let i = 0; i < totalTreesStart; i++) {
+        plantarArvore(Math.random() * 580, Math.random() * 580);
     }
 
     // Áreas de coleta de sementes
@@ -38,10 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         area.style.left = `${pos.x}px`;
         area.style.top = `${pos.y}px`;
         gameArea.appendChild(area);
-        area.addEventListener('click', () => {
-            sementes += 5; // Aumenta as sementes ao clicar na área de coleta
-            console.log(`Sementes: ${sementes}`);
-        });
     });
 
     // Movimentação do jogador
@@ -50,38 +43,76 @@ document.addEventListener('DOMContentLoaded', () => {
         const jogadorX = jogador.offsetLeft;
         const jogadorY = jogador.offsetTop;
         switch (e.key) {
-            case 'ArrowUp': jogador.style.top = `${jogadorY - speed}px`; break;
-            case 'ArrowDown': jogador.style.top = `${jogadorY + speed}px`; break;
-            case 'ArrowLeft': jogador.style.left = `${jogadorX - speed}px`; break;
-            case 'ArrowRight': jogador.style.left = `${jogadorX + speed}px`; break;
-            case ' ': // Espaço para plantar árvores se tiver sementes
-                if (sementes > 0) {
-                    plantarArvore(jogadorX, jogadorY);
-                    sementes--;
-                }
-                break;
+            case 'ArrowUp': jogador.style.top = `${Math.max(jogadorY - speed, 0)}px`; break;
+            case 'ArrowDown': jogador.style.top = `${Math.min(jogadorY + speed, 580)}px`; break;
+            case 'ArrowLeft': jogador.style.left = `${Math.max(jogadorX - speed, 0)}px`; break;
+            case 'ArrowRight': jogador.style.left = `${Math.min(jogadorX + speed, 580)}px`; break;
+            case ' ': if (sementesInfinitas) plantarArvore(jogadorX, jogadorY + 20); break;
         }
+        verificarColetaSementes();
+        verificarColisaoFazendeiro();
     });
 
-    // Função para plantar árvores
+    function verificarColetaSementes() {
+        areasColeta.forEach(area => {
+            const areaX = parseInt(area.style.left, 10);
+            const areaY = parseInt(area.style.top, 10);
+            const jogadorX = jogador.offsetLeft;
+            const jogadorY = jogador.offsetTop;
+            if (Math.abs(jogadorX - areaX) < 30 && Math.abs(jogadorY - areaY) < 30 && !sementesInfinitas) {
+                sementesInfinitas = true;
+                console.log("Sementes infinitas coletadas!");
+            }
+        });
+    }
+
+    function verificarColisaoFazendeiro() {
+        const fazendeiroX = fazendeiro.offsetLeft;
+        const fazendeiroY = fazendeiro.offsetTop;
+        const jogadorX = jogador.offsetLeft;
+        const jogadorY = jogador.offsetTop;
+        if (Math.abs(jogadorX - fazendeiroX) < 20 && Math.abs(jogadorY - fazendeiroY) < 20) {
+            alert("O fazendeiro te pegou! Fim de jogo.");
+            location.reload(); // Reinicia o jogo
+        }
+    }
+
     function plantarArvore(x, y) {
         const novaArvore = document.createElement('div');
         novaArvore.className = 'sprite arvore';
         novaArvore.style.left = `${x}px`;
-        novaArvore.style.top = `${y + 20}px`; // Um pouco abaixo do jogador
+        novaArvore.style.top = `${y}px`;
         gameArea.appendChild(novaArvore);
         arvores.push(novaArvore);
+        currentTrees++;
+        atualizarPreservacaoFloresta();
     }
 
-    // Mover fazendeiro
-    function moverFazendeiro() {
+    function removerArvore() {
         if (arvores.length > 0) {
-            const primeiraArvore = arvores[0];
-            fazendeiro.style.left = primeiraArvore.style.left;
-            fazendeiro.style.top = primeiraArvore.style.top;
-            gameArea.removeChild(primeiraArvore);
-            arvores.shift(); // Remove a primeira árvore da lista
+            const arvore = arvores.shift(); // Remove a primeira árvore
+            gameArea.removeChild(arvore);
+            currentTrees--;
+            atualizarPreservacaoFloresta();
         }
     }
-    setInterval(moverFazendeiro, 1000); // Fazendeiro move a cada 1 segundo
+
+    function atualizarPreservacaoFloresta() {
+        forestPreserved = (currentTrees / totalTreesStart) * 100;
+        document.getElementById('forest-status').textContent = `Floresta Preservada: ${forestPreserved.toFixed(0)}%`;
+        if (forestPreserved < 50) {
+            alert("Menos de 50% da floresta foi preservada. Fim de jogo.");
+            location.reload(); // Reinicia o jogo
+        }
+    }
+
+    function moverFazendeiro() {
+        if (arvores.length > 0) {
+            const proximaArvore = arvores[0];
+            fazendeiro.style.left = proximaArvore.style.left;
+            fazendeiro.style.top = proximaArvore.style.top;
+            removerArvore();
+        }
+    }
+    setInterval(moverFazendeiro, 2000); // Fazendeiro move a cada 2 segundos
 });
