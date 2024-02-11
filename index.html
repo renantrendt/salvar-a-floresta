@@ -7,10 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game" style="width: 600px; height: 600px; position: relative; overflow: hidden; margin: auto; background-color: #ddf;">
+    <div id="pre-game">
+        <p>Você precisa coletar as sementes nos 4 cantos da tela e proteger a floresta antes que o fazendeiro destrua ela.</p>
+        <button id="start-game">Iniciar</button>
+    </div>
+    <div id="game" style="display: none;">
         <div id="timer">03:00</div>
         <div id="forest-status">Floresta Preservada: 100%</div>
-        <!-- Áreas de coleta de sementes serão adicionadas aqui -->
     </div>
     <script src="script.js"></script>
 </body>
