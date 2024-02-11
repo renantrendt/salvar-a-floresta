@@ -80,3 +80,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (arvores.length > 0 && index < arvores.length) {
                 const arvoreAtual = arvores[index];
                 fazendeiro.style
+                                fazendeiro.style.left = arvoreAtual.style.left;
+                fazendeiro.style.top = arvoreAtual.style.top;
+                setTimeout(() => {
+                    if (arvoreAtual && arvoreAtual.parentNode) {
+                        arvoreAtual.parentNode.removeChild(arvoreAtual);
+                    }
+                    // Atualize aqui a lógica para reduzir a porcentagem da floresta preservada, se aplicável
+                }, 500); // Espera meio segundo antes de remover a árvore para simular o desmatamento
+                index++;
+                if(index >= arvores.length) { // Se todas as árvores foram removidas, pare o desmatamento
+                    clearInterval(intervaloDesmatamento);
+                }
+            } else {
+                clearInterval(intervaloDesmatamento); // Se não houver mais árvores, pare o desmatamento
+            }
+        }, 2000); // Move para a próxima árvore a cada 2 segundos
+    }
+});
+
