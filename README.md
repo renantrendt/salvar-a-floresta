@@ -1,0 +1,1 @@
+Esse é um protótipo educativo de um jogo que estimula a jovens a entender que apenas reflorestar a Amazonia não é suficiente pois a taxa de desmatamento é em algumas potências mais rápida que o reflorestamento.
